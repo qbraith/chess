@@ -95,6 +95,10 @@ public class Board extends JFrame implements ActionListener{
                             //! implement here code for check
                             //functionality for checking if a move is valid because of check
                             if (!simulateMove(current, s)) return;
+                            //!finally found error
+                            //when simulate move is called here the incheck method's threat is where the pawn is moving and where it came from
+                            //not where the previous move was, so a pulsing would still be neccesary
+                            //but only when some static checked parameter is set to true
 
 
                             ++turn;
@@ -521,8 +525,22 @@ public class Board extends JFrame implements ActionListener{
             to.setHorizontalTextPosition(JButton.CENTER);
         }
         printBoard(copy);
+        //modulus 1 is correct
         Square king = (turn%2==1) ? wKing : bKing;
-        boolean checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
+        String color = (turn%2==1) ? "white" : "black";
+        //?issue on how to check for checks without pulsing every move
+        //because king can also move into check theoretically
+        //maybe have condition where if king is identified then prevent it from moving into check
+        //cuz in theory other pieces should be pinned to prevent one from moving into check
+
+        // boolean parameter = (turn%2==1) ? wCheck : bCheck;
+        // boolean checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
+        boolean checked = inCheck(color, king); 
+
+        //!this method is better as you kinda need to pulse from the king to see if they're still in check
+        //should only need to be called when you know that either w or b check is true
+        //because the king shouldn't be able to move itself into check (needs to be seperately implemented)
+        //and pieces should be pinned
         if (checked) {
             System.out.println("YOU ARE IN CHECK");
         }
