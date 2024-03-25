@@ -159,6 +159,7 @@ public class Board extends JFrame implements ActionListener{
                             boolean checked = inCheck(king, s, false, list) || inCheck(king, current, true, list);
                             if (checked) {
                                 System.out.println("CHECKKK");
+                                //! establishing that someone is in check
                                 if (turn%2==1) wCheck = true;
                                 else bCheck = true;
                                 //! in valid move check if still in check and if so return false
@@ -347,14 +348,14 @@ public class Board extends JFrame implements ActionListener{
         return turn%2==0;
     }
     
-    public boolean inCheck(String allyColor, Square king) {
+    public boolean inCheck(String allyColor, Square king, ArrayList<Square> board) {
         String direction;
         for (int xVal : new int[] {-1, 0, 1}) {
             for (int yVal : new int[] {-1, 0, 1}) {
                 if (xVal == 0 && yVal == 0) continue;
                 if (Math.abs(xVal + yVal) == 1) direction = "lateral";
                 else direction = "diagonal";
-                boolean checked = inCheck(allyColor, king.getRow(), king.getCol(), xVal, yVal, direction);
+                boolean checked = inCheck(allyColor, king.getRow(), king.getCol(), xVal, yVal, direction, board);
                 if (checked) return true;
             }
         }
@@ -373,7 +374,7 @@ public class Board extends JFrame implements ActionListener{
         return false;
     }
 
-    public boolean inCheck(String allyColor, int currentX, int currentY, int incX, int incY, String direction) {
+    public boolean inCheck(String allyColor, int currentX, int currentY, int incX, int incY, String direction, ArrayList<Square> board) {
         Piece pinned = null;
         int allies = 0, enemies = 0, squares = 0;
         currentX += incX;
@@ -381,12 +382,16 @@ public class Board extends JFrame implements ActionListener{
         while (inRange(currentX, currentY)){
             ++squares;
             // System.out.println(currentX + " " + currentY);
-            Square s  = list.get(currentX*8+currentY);
+            Square s  = board.get(currentX*8+currentY);
             if (s.getPiece() != null){
                 if (s.getPiece().getColor().equals(allyColor)) {
                     ++allies;
                     pinned = s.getPiece();
                 } else ++enemies;
+            } else {
+                currentX += incX;
+                currentY += incY;
+                continue;
             }
             if (allies == 2) break;
             if (enemies == 1){
@@ -403,6 +408,8 @@ public class Board extends JFrame implements ActionListener{
                     return true;
                 }
             }
+            currentX += incX;
+            currentY += incY;
         }
 
         return false;
@@ -483,6 +490,7 @@ public class Board extends JFrame implements ActionListener{
         }
         from = copy.get(from.getRow()*8+from.getCol());
         to = copy.get(to.getRow()*8+to.getCol());
+        boolean isKing = from.equals(wKing) || from.equals(bKing);
         
         if (castled) {
             int increment;
@@ -526,16 +534,36 @@ public class Board extends JFrame implements ActionListener{
         }
         printBoard(copy);
         //modulus 1 is correct
+        
         Square king = (turn%2==1) ? wKing : bKing;
         String color = (turn%2==1) ? "white" : "black";
+        //if king is the one moving, then do incheck with 4 parameters
+        //otherwise do pulsing from the king, but it has to be established that its already in check
+        
         //?issue on how to check for checks without pulsing every move
         //because king can also move into check theoretically
         //maybe have condition where if king is identified then prevent it from moving into check
         //cuz in theory other pieces should be pinned to prevent one from moving into check
-
-        // boolean parameter = (turn%2==1) ? wCheck : bCheck;
+        
+        boolean parameter = (turn%2==1) ? wCheck : bCheck;
+        boolean checked;
+        if (parameter || isKing) { 
+            if (isKing) System.out.println("the king just moved");
+            System.out.println("pulsing from the king");
+            long e = System.nanoTime();
+            checked = inCheck(color, king, copy);
+            long time = System.nanoTime()-e;
+            System.out.println("time to run is check in milliseconds: " + time);
+            //crashes when incheck is run
+        } else {
+            checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
+        }
+        if (!checked) {
+            wCheck = false;
+            bCheck = false;
+        }
         // boolean checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
-        boolean checked = inCheck(color, king); 
+        // boolean checked = inCheck(color, king); 
 
         //!this method is better as you kinda need to pulse from the king to see if they're still in check
         //should only need to be called when you know that either w or b check is true

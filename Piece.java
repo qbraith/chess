@@ -65,7 +65,13 @@ public class Piece {
         this.direction = direction;
     }
 
-    
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!o.getClass().equals(Piece.class)) return false;
+        Piece p = (Piece) o;
+        return name.equals(p.name) && color.equals(p.color) && moves==p.moves;
+        //name color moves
+    }
     
 
     
