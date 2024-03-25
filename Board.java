@@ -67,6 +67,7 @@ public class Board extends JFrame implements ActionListener{
 
                     //take two
 
+                    //! pinned pieces actually can move
                     if (!clicked && s.getPiece() != null && !s.getPiece().isPinned() && matchTurn(s.getPiece().getColor())){
                         // System.out.println("clicked");
                         current = s;
@@ -92,6 +93,7 @@ public class Board extends JFrame implements ActionListener{
                         boolean valid = validMove(current, s);
                         if (valid){
                             //! implement here code for check
+                            //functionality for checking if a move is valid because of check
                             if (!simulateMove(current, s)) return;
 
 
@@ -145,16 +147,18 @@ public class Board extends JFrame implements ActionListener{
                                 current.setBackground(new Color (105, 49, 19));
                             }
 
+
                             //take two 
+                            //functionality for stating check after move
                             //TODO functionality for check
-                            // Square king = (turn%2==1) ? wKing : bKing;
-                            // boolean checked = inCheck(king, s, false) || inCheck(king, current, true);
-                            // if (checked) {
-                            //     System.out.println("CHECKKK");
-                            //     if (turn%2==1) wCheck = true;
-                            //     else bCheck = true;
-                            //     //! in valid move check if still in check and if so return false
-                            // }
+                            Square king = (turn%2==1) ? wKing : bKing;
+                            boolean checked = inCheck(king, s, false, list) || inCheck(king, current, true, list);
+                            if (checked) {
+                                System.out.println("CHECKKK");
+                                if (turn%2==1) wCheck = true;
+                                else bCheck = true;
+                                //! in valid move check if still in check and if so return false
+                            }
                             clicked = false;
                             current = null;
                         }
@@ -224,6 +228,7 @@ public class Board extends JFrame implements ActionListener{
             b.setHorizontalTextPosition(JButton.CENTER);
             Piece p = b.getPiece();
             // b.setText(b.getPiece().getColor().substring(0, 1) + b.getPiece().getName());
+            // b.setForeground(Color.white);
             // System.out.println(p.getColor().substring(0,1).toLowerCase() + p.getName().toLowerCase());
             ImageIcon i = new ImageIcon("images/" + p.getColor().substring(0,1).toLowerCase() + p.getName().toLowerCase() + ".PNG");
             ImageIcon i3 = new ImageIcon(i.getImage().getScaledInstance(75, 65, Image.SCALE_SMOOTH));
@@ -515,6 +520,7 @@ public class Board extends JFrame implements ActionListener{
             to.setVerticalTextPosition(JButton.CENTER);
             to.setHorizontalTextPosition(JButton.CENTER);
         }
+        printBoard(copy);
         Square king = (turn%2==1) ? wKing : bKing;
         boolean checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
         if (checked) {
@@ -526,11 +532,21 @@ public class Board extends JFrame implements ActionListener{
     public boolean inRange(int x, int y){
         return x >= 0 && x <= 7 && y >= 0 && y <= 7;
     }
+
+    public void printBoard(ArrayList<Square> board) {
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                Square q = board.get(i*8+j);
+                boolean hasPiece = q.getPiece() != null;
+                if (hasPiece) {
+                    System.out.print(q.getPiece().getColor().substring(0, 1) + q.getPiece().getName().substring(0,2)+"  ");
+                } else System.out.print(" .   ");
+            }
+            System.out.println();
+        }
+    }
     
     public static void main(String[] args) {
-        // for (int i = 0; i< 10; i++){
-        //     System.out.print("break");
-        // }
         new Board();
         System.out.println("started");
     }
