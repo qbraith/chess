@@ -27,7 +27,6 @@ public class Board extends JFrame implements ActionListener{
         this.add(l1);
         this.add(l2);
         this.setSize(885, 910);
-
         
         list = makeButtons(size);
         setupPieces(7, 0, 1, "white");
@@ -45,9 +44,7 @@ public class Board extends JFrame implements ActionListener{
         this.setResizable(false);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setVisible(true);
-        // System.out.println("constructor over");
-    }
-    
+    }   
     
     public void actionPerformed(ActionEvent e){
         for (int i = 0; i < size; i++) {
@@ -66,6 +63,7 @@ public class Board extends JFrame implements ActionListener{
                     //create two instance variables keeping track of each king
 
                     //take two
+                    // System.out.println(wCheck + " " + bCheck);
 
                     //! pinned pieces actually can move
                     if (!clicked && s.getPiece() != null && matchTurn(s.getPiece().getColor())){
@@ -91,11 +89,11 @@ public class Board extends JFrame implements ActionListener{
                         }
                         
                         //top right black knight in particular can't move
-                        boolean valid = validMove(current, s);
+                        boolean valid = validMove(current, s, true);
                         if (valid){
                             //! implement here code for check
                             //functionality for checking if a move is valid because of check
-                            if (!simulateMove(current, s)) return;
+                            if (!simulateMove(current, s, true)) return;
                             //!finally found error
                             //when simulate move is called here the incheck method's threat is where the pawn is moving and where it came from
                             //not where the previous move was, so a pulsing would still be neccesary
@@ -167,6 +165,13 @@ public class Board extends JFrame implements ActionListener{
                                 if (turn%2==1) wCheck = true;
                                 else bCheck = true;
                                 //! in valid move check if still in check and if so return false
+                                // long p = System.nanoTime();
+                                // System.out.println(System.nanoTime()-p);
+                                boolean over = checkMate(king.getPiece().getColor());
+                                if (over) {
+                                    System.out.println("CHECKMATE");
+                                    this.setEnabled(false);
+                                }
                             }
                             clicked = false;
                             current = null;
@@ -246,8 +251,8 @@ public class Board extends JFrame implements ActionListener{
         }
     }
 
-    public boolean validMove(Square from, Square to){
-        System.out.println("trying to go to " + numberToLetter(to.getCol()) + (8-to.getRow()));
+    public boolean validMove(Square from, Square to, boolean print){
+        if (print) System.out.println("trying to go to " + numberToLetter(to.getCol()) + (8-to.getRow()));
         String name = from.getPiece().getName();
         int[] toPair = {to.getRow(), to.getCol()};
         int[] fromPair = {from.getRow(), from.getCol()};
@@ -277,7 +282,7 @@ public class Board extends JFrame implements ActionListener{
 
             if (found == 0) return true;
             return false;
-        } else if (name.equals("Rook") || (name.equals("Queen") && direction.equals("lateral"))) {
+        } else if ((name.equals("Rook") || name.equals("Queen")) && direction.equals("lateral")) {
             boolean vertical = (from.getRow() == to.getRow()) ? false : true;
             int incX, incY, newX = from.getRow(), newY = from.getCol(), found = 0;
             if (vertical){
@@ -505,14 +510,14 @@ public class Board extends JFrame implements ActionListener{
             if (from.getPiece()==null || !from.getPiece().getColor().equals(color)) continue;
             for (Square to : list) {
                 //might need to add boolean parameter to simulate move if the wrong king gets checked here
-                if (validMove(from, to) && simulateMove(from, to)) return false;
+                if (validMove(from, to, false) && simulateMove(from, to, false)) return false;
             }
         }
         
         return true;
     }
     
-    public boolean simulateMove(Square from, Square to) {
+    public boolean simulateMove(Square from, Square to, boolean change) {
         ArrayList<Square> copy = new ArrayList<>();
         for (Square q : list){
             Square newSquare = new Square("");
@@ -594,7 +599,7 @@ public class Board extends JFrame implements ActionListener{
         } else {
             checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
         }
-        if (!checked) {
+        if (!checked && change) {
             wCheck = false;
             bCheck = false;
         }
