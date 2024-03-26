@@ -89,7 +89,8 @@ public class Board extends JFrame implements ActionListener{
                             //review image to non highlighted
                             return;
                         }
-    
+                        
+                        //top right black knight in particular can't move
                         boolean valid = validMove(current, s);
                         if (valid){
                             //! implement here code for check
@@ -473,7 +474,7 @@ public class Board extends JFrame implements ActionListener{
                 currentY += dY;
             }
         } else {
-            return threat.getPiece().getName().equals("Knight");
+            return threat.getPiece().getName().equals("Knight") && !threat.getPiece().getColor().equals(king.getPiece().getColor());
         }
 
         return false;
@@ -550,13 +551,13 @@ public class Board extends JFrame implements ActionListener{
         if (parameter || isKing) { 
             if (isKing) System.out.println("the king just moved");
             System.out.println("pulsing from the king");
-            long e = System.nanoTime();
+            // long e = System.nanoTime();
             Square k = (isKing) ? to : king;
             checked = inCheck(color, k, copy);
             //!basically we need to pass in the new king so it has updated coordinates when checking for check
             //need to check if king was the one moved and then update a temporary parameter
-            long time = System.nanoTime()-e;
-            System.out.println("time to run is check in milliseconds: " + time);
+            // long time = System.nanoTime()-e;
+            // System.out.println("time to run is check in milliseconds: " + time);
             //crashes when incheck is run
         } else {
             checked = inCheck(king, to, false, copy) || inCheck(king, from, true, copy);
