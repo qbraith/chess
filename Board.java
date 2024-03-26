@@ -479,6 +479,35 @@ public class Board extends JFrame implements ActionListener{
 
         return false;
     }
+
+    public boolean checkMate(String color) {
+        //! how to implement checkmate (would take a long time to implement everytime the player in check) 
+        //! although it does only check pieces of the same color
+        //! currently like O(16*16) 
+        /* what do do
+         * establish which king is the one to check for
+         * iterate through every square in the list
+         * if the square has a piece the same color as the king
+         * iterate through every square in the list (target)
+         * check if moving from the square to target is validMove
+         * simulateMove to see if the king is still in check
+         * if not in check return false as the player has valid move
+         * would take
+        */
+
+        boolean parameter = (turn%2==1) ? wCheck : bCheck;
+        if (!parameter) return false;
+
+        for (Square from : list) {
+            if (from.getPiece()==null || !from.getPiece().getColor().equals(color)) continue;
+            for (Square to : list) {
+                //might need to add boolean parameter to simulate move if the wrong king gets checked here
+                if (validMove(from, to) && simulateMove(from, to)) return false;
+            }
+        }
+        
+        return true;
+    }
     
     public boolean simulateMove(Square from, Square to) {
         ArrayList<Square> copy = new ArrayList<>();
@@ -511,27 +540,27 @@ public class Board extends JFrame implements ActionListener{
                 newKing = list.get(from.getRow()*8+from.getCol()+2*increment);
             }
             newRook.setPiece(to.getPiece());
-            newRook.setIcon(to.getIcon());
+            // newRook.setIcon(to.getIcon());
             newKing.setPiece(from.getPiece());
-            newKing.setIcon(from.getIcon());
-            to.setIcon(null);
+            // newKing.setIcon(from.getIcon());
+            // to.setIcon(null);
             to.setPiece(null);
-            from.setIcon(null);
+            // from.setIcon(null);
             from.setPiece(null);
-            newKing.setVerticalTextPosition(JButton.CENTER);
-            newKing.setHorizontalTextPosition(JButton.CENTER);
-            newRook.setVerticalTextPosition(JButton.CENTER);
-            newRook.setHorizontalTextPosition(JButton.CENTER);
+            // newKing.setVerticalTextPosition(JButton.CENTER);
+            // newKing.setHorizontalTextPosition(JButton.CENTER);
+            // newRook.setVerticalTextPosition(JButton.CENTER);
+            // newRook.setHorizontalTextPosition(JButton.CENTER);
             
     
         } else {
             // System.out.println("Valid move: " + from.getPiece().getName() + " to " + numberToLetter(to.getCol()) + (8-to.getRow()));
-            to.setIcon(from.getIcon());
+            // to.setIcon(from.getIcon());
             to.setPiece(from.getPiece());
             from.setPiece(null);
-            from.setIcon(null);
-            to.setVerticalTextPosition(JButton.CENTER);
-            to.setHorizontalTextPosition(JButton.CENTER);
+            // from.setIcon(null);
+            // to.setVerticalTextPosition(JButton.CENTER);
+            // to.setHorizontalTextPosition(JButton.CENTER);
         }
         printBoard(copy);
         //modulus 1 is correct
