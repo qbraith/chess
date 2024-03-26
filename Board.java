@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 public class Board extends JFrame implements ActionListener{
     ArrayList<Square> list = new ArrayList<>();
-    boolean clicked = false, castled = false, wCheck = false, bCheck = false;
+    boolean clicked = false, castled = false, wCheck = false, bCheck = false, gameOver = false;
     Square current = null, wKing, bKing;
     final int size = 8;
     int turn = 1;
@@ -47,6 +47,7 @@ public class Board extends JFrame implements ActionListener{
     }   
     
     public void actionPerformed(ActionEvent e){
+        if (gameOver) return;
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Square s = list.get(i*8+j);
@@ -109,8 +110,8 @@ public class Board extends JFrame implements ActionListener{
                                 System.out.println(side + " side castle");
                                 if (side.equals("King")) {
                                     increment = (Math.abs(s.getCol()-current.getCol()))/(s.getCol()-current.getCol());
-                                    newRook = list.get(s.getRow()*8+s.getCol()-increment);
-                                    newKing = list.get(current.getRow()*8+current.getCol()+increment);
+                                    newRook = list.get(s.getRow()*8+s.getCol()-2*increment);
+                                    newKing = list.get(current.getRow()*8+current.getCol()+2*increment);
                                 } else {
                                     increment = (Math.abs(s.getCol()-current.getCol()))/(s.getCol()-current.getCol());
                                     newRook = list.get(s.getRow()*8+s.getCol()-3*increment);
@@ -143,6 +144,10 @@ public class Board extends JFrame implements ActionListener{
                                 s.setVerticalTextPosition(JButton.CENTER);
                                 s.setHorizontalTextPosition(JButton.CENTER);
                                 s.getPiece().setMoves(s.getPiece().getMoves()+1);
+                                if (s.getPiece().getName().equals("King")) {
+                                    if (s.getPiece().getColor().equals("white")) wKing = s;
+                                    else bKing = s;
+                                }
                             }
 
                             if ((current.getRow()%2==0 && current.getCol()%2==0) || (current.getCol()%2==1 && current.getRow()%2==1)) {
@@ -170,7 +175,9 @@ public class Board extends JFrame implements ActionListener{
                                 boolean over = checkMate(king.getPiece().getColor());
                                 if (over) {
                                     System.out.println("CHECKMATE");
-                                    this.setEnabled(false);
+                                    king.setBackground(Color.red);
+                                    // this.setEnabled(false);
+                                    gameOver = true;
                                 }
                             }
                             clicked = false;
@@ -641,3 +648,6 @@ public class Board extends JFrame implements ActionListener{
 
 //todo
 //no checkmate feature implemented
+//issue where selected square changes color even though valid move hasnt been made
+//casting is messed up
+//when the king moves we not updating the square
