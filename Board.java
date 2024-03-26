@@ -68,7 +68,7 @@ public class Board extends JFrame implements ActionListener{
                     //take two
 
                     //! pinned pieces actually can move
-                    if (!clicked && s.getPiece() != null && !s.getPiece().isPinned() && matchTurn(s.getPiece().getColor())){
+                    if (!clicked && s.getPiece() != null && matchTurn(s.getPiece().getColor())){
                         // System.out.println("clicked");
                         current = s;
                         clicked = true;
@@ -131,6 +131,8 @@ public class Board extends JFrame implements ActionListener{
                                 newRook.setVerticalTextPosition(JButton.CENTER);
                                 newRook.setHorizontalTextPosition(JButton.CENTER);
                                 castled = false;
+                                newKing.getPiece().setMoves(1);
+                                newRook.getPiece().setMoves(1);
 
                                 if (newKing.getPiece().getColor().equals("white")) wKing = newKing;
                                 else bKing = newKing;
@@ -142,6 +144,7 @@ public class Board extends JFrame implements ActionListener{
                                 current.setIcon(null);
                                 s.setVerticalTextPosition(JButton.CENTER);
                                 s.setHorizontalTextPosition(JButton.CENTER);
+                                s.getPiece().setMoves(s.getPiece().getMoves()+1);
                             }
 
                             if ((current.getRow()%2==0 && current.getCol()%2==0) || (current.getCol()%2==1 && current.getRow()%2==1)) {
@@ -565,8 +568,6 @@ public class Board extends JFrame implements ActionListener{
         printBoard(copy);
         //modulus 1 is correct
         
-        Square king = (turn%2==1) ? wKing : bKing;
-        String color = (turn%2==1) ? "white" : "black";
         //if king is the one moving, then do incheck with 4 parameters
         //otherwise do pulsing from the king, but it has to be established that its already in check
         
@@ -575,6 +576,8 @@ public class Board extends JFrame implements ActionListener{
         //maybe have condition where if king is identified then prevent it from moving into check
         //cuz in theory other pieces should be pinned to prevent one from moving into check
         
+        Square king = (turn%2==1) ? wKing : bKing;
+        String color = (turn%2==1) ? "white" : "black";
         boolean parameter = (turn%2==1) ? wCheck : bCheck;
         boolean checked;
         if (parameter || isKing) { 
@@ -630,3 +633,6 @@ public class Board extends JFrame implements ActionListener{
         System.out.println("started");
     }
 }
+
+//todo
+//no checkmate feature implemented
