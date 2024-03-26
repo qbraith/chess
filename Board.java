@@ -551,7 +551,10 @@ public class Board extends JFrame implements ActionListener{
             if (isKing) System.out.println("the king just moved");
             System.out.println("pulsing from the king");
             long e = System.nanoTime();
-            checked = inCheck(color, king, copy);
+            Square k = (isKing) ? to : king;
+            checked = inCheck(color, k, copy);
+            //!basically we need to pass in the new king so it has updated coordinates when checking for check
+            //need to check if king was the one moved and then update a temporary parameter
             long time = System.nanoTime()-e;
             System.out.println("time to run is check in milliseconds: " + time);
             //crashes when incheck is run
